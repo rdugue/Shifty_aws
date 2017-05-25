@@ -87,5 +87,5 @@ Resources:
         Shifty:
           Type: Api
           Properties:
-            Path: /register
+            Path: /register/
             Method: post
