@@ -47,4 +47,4 @@ def lambda_handler(event, context):
             return respond(None, {
                 'token': jwt_token.decode(),
                 'data': json.dumps(payload)
-                }) 
+                })
