@@ -2,7 +2,7 @@ from __future__ import print_function
 import json
 import boto3
 import jwt
-import bcrypt
+from bcrypt import hashpw, gensalt
 from botocore.exceptions import ClientError
 
 print('Loading function')
@@ -27,9 +27,9 @@ def lambda_handler(event, context):
     if operation == 'POST':
         payload = json.loads(event['body'])
         table = dynamo.Table(payload.company + '_users')
-        payload.info.password = bcrypt.hashpw(
+        payload.password = hashpw(
             payload.info.password,
-            bcrypt.gensalt()
+            gensalt()
         )
 
         try:

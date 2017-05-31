@@ -18,9 +18,8 @@ def lambda_handler(event, context):
     jwt_token = headers.Authorization
     if jwt_token:
         try:
-            jwt_payload = jwt.decode(jwt_token,
-                                    JWT_SECRET,
-                                    algorithms=[JWT_ALGORITHM])
+            jwt_payload = jwt.decode(jwt_token, JWT_SECRET,
+                                     algorithms=[JWT_ALGORITHM])
         except jwt.DecodeError as e:
             print(e.message)
             raise Exception('Unauthorized')
