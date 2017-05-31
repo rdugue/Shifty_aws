@@ -2,7 +2,7 @@ from __future__ import print_function
 import json
 import boto3
 import jwt
-import bcrypt
+from bcrypt import checkpw
 from botocore.exceptions import ClientError
 
 print('Loading function')
@@ -40,7 +40,7 @@ def lambda_handler(event, context):
             return respond({'message': e.response['Error']['Message']})
         else:
             user = response['Item']
-            if bcrypt.checkpw(payload.info.password, user.info.password):
+            if checkpw(payload.password, user.password):
                 jwt_payload = {
                     'user_id': user.userId,
                     'company': user.company

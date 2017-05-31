@@ -27,7 +27,7 @@ Resources:
               - Ref: AWS::AccountId
               - :table/*
         Version: '2012-10-17'
-      Runtime: python2.7
+      Runtime: python3.6
       Timeout: 10
     Type: AWS::Serverless::Function
   AuthRegistrationLogic:
@@ -38,7 +38,7 @@ Resources:
         Shifty:
           Properties:
             Method: post
-            Path: /register/user
+            Path: /register/company
           Type: Api
       Handler: auth_register.lambda_handler
       MemorySize: 512
@@ -56,13 +56,13 @@ Resources:
               - Ref: AWS::AccountId
               - :table/*
         Version: '2012-10-17'
-      Runtime: python2.7
+      Runtime: python3.6
       Timeout: 10
     Type: AWS::Serverless::Function
   CustomAuthLogic:
     Properties:
       CodeUri: s3://shifty-back-end/back_end.zip
-      Description: Custom authorizer for Shifty API, implemented in Python 2.7.
+      Description: Custom authorizer for Shifty API, implemented in Python 3.6.
       Handler: authorizer.lambda_handler
       MemorySize: 256
       Policies:
@@ -83,7 +83,7 @@ Resources:
               - Ref: AWS::AccountId
               - :table/*
         Version: '2012-10-17'
-      Runtime: python2.7
+      Runtime: python3.6
       Timeout: 5
     Type: AWS::Serverless::Function
 Transform: AWS::Serverless-2016-10-31
