@@ -11,11 +11,11 @@ JWT_SECRET = 'secret'
 JWT_ALGORITHM = 'HS256'
 
 def lambda_handler(event, context):
-    headers = json.loads(event['headers'])
-    print("Client token: " + headers.Authorization)
+    headers = event['headers']
+    print("Client token: " + headers['Authorization'])
     print("Method ARN: " + event['methodArn'])
 
-    jwt_token = headers.Authorization
+    jwt_token = headers['Authorization']
     if jwt_token:
         try:
             jwt_payload = jwt.decode(jwt_token, JWT_SECRET,
@@ -29,8 +29,8 @@ def lambda_handler(event, context):
             try:
                 response = table.get_item(
                     Key={
-                        'user_id': jwt_payload.userId,
-                        'company': jwt_payload.company
+                        'userId': jwt_payload.userId,
+                        'position': jwt_payload.position
                     }
                 )
             except ClientError as e:
@@ -38,7 +38,7 @@ def lambda_handler(event, context):
                 raise Exception('Unauthorized')
             else:
                 user = response['Item']
-                principalId = user.userId + '|' + user.company
+                principalId = user['userId'] + '|' + user['position']
 
                 tmp = event['methodArn'].split(':')
                 apiGatewayArnTmp = tmp[5].split('/')

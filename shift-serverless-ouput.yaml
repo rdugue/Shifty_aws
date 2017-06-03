@@ -46,6 +46,8 @@ Resources:
       - Statement:
         - Action:
           - dynamodb:PutItem
+          - dynamodb:CreateTable
+          - dynamodb:DescribeTable
           Effect: Allow
           Resource:
             Fn::Join:
