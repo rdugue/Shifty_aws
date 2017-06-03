@@ -4,5 +4,5 @@
 /lib/
 /local/
 pip-selfcheck.json
-back_end.zip
-template.yaml
+back_end*.zip
+shift-serverless-ouput.yaml

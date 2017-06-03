@@ -1,0 +1,3 @@
+boto3
+py-bcrypt
+PyJWT
