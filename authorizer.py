@@ -1,12 +1,10 @@
 from __future__ import print_function
 import json
 import re
-import boto3
 import jwt
-from botocore.exceptions import ClientError
+from shifty_utils import get_user
 
 print('Loading function')
-dynamo = boto3.client('dynamodb')
 JWT_SECRET = 'secret'
 JWT_ALGORITHM = 'HS256'
 
@@ -24,19 +22,13 @@ def lambda_handler(event, context):
             print(e.message)
             raise Exception('Unauthorized')
         else:
-            table = dynamo.Table(jwt_payload.company + '_users')
-
-            try:
-                response = table.get_item(
-                    Key={
-                        'userId': jwt_payload.userId,
-                        'position': jwt_payload.position
-                    }
-                )
-            except ClientError as e:
-                print(e.response['Error']['Message'])
-                raise Exception('Unauthorized')
-            else:
+            response = get_user(
+                {
+                    'userId': jwt_payload.userId,
+                    'position': jwt_payload.position
+                }
+            )
+            if 'Item' in response:
                 user = response['Item']
                 principalId = user['userId'] + '|' + user['position']
 

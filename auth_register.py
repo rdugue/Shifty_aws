@@ -4,21 +4,12 @@ import boto3
 import jwt
 from passlib.hash import pbkdf2_sha256
 from botocore.exceptions import ClientError
+from shifty_utils import respond, create
 
 print('Loading function')
 dynamo = boto3.resource('dynamodb')
 JWT_SECRET = 'secret'
 JWT_ALGORITHM = 'HS256'
-
-
-def respond(err, res=None):
-    return {
-        'statusCode': '400' if err else '200',
-        'body': err['message'] if err else res,
-        'headers': {
-            'Content-Type': 'application/json',
-        },
-    }
 
 def create_tables(company):
     try:
@@ -94,12 +85,8 @@ def lambda_handler(event, context):
     table = create_tables(payload['company'])
     table.meta.client.get_waiter('table_exists').wait(TableName=payload['company'] + '_users')
 
-    try:
-        response = table.put_item(Item=payload)
-    except ClientError as e:
-        print(e.response['Error']['Message'])
-        return respond({'message': e.response['Error']['Message']})
-    else:
+    response = create(payload, 'users')
+    if 'Attributes' in response:
         jwt_payload = {
             'userId':payload['userId'],
             'position': payload['position']
@@ -110,3 +97,6 @@ def lambda_handler(event, context):
             'token': jwt_token.decode(),
             'data': payload
             })
+    else:
+        return respond(response)
+        
