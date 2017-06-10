@@ -86,10 +86,11 @@ def lambda_handler(event, context):
     table.meta.client.get_waiter('table_exists').wait(TableName=payload['company'] + '_users')
 
     response = create(payload, 'users')
-    if 'Attributes' in response:
+    if response['ResponseMetadata']['HTTPStatusCode'] == 200:
         jwt_payload = {
-            'userId':payload['userId'],
-            'position': payload['position']
+            'userId': payload['userId'],
+            'position': payload['position'],
+            'company': payload['company']
         }
         jwt_token = jwt.encode(jwt_payload, JWT_SECRET, JWT_ALGORITHM)
         print("Registration succeeded: " + json.dumps(response, indent=2))
@@ -98,5 +99,6 @@ def lambda_handler(event, context):
             'data': payload
             })
     else:
+        print("Registration failed: " + json.dumps(response, indent=2))
         return respond(response)
         
