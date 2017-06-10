@@ -24,8 +24,9 @@ def lambda_handler(event, context):
         else:
             response = get_user(
                 {
-                    'userId': jwt_payload.userId,
-                    'position': jwt_payload.position
+                    'userId': jwt_payload['userId'],
+                    'position': jwt_payload['position'],
+                    'company': jwt_payload['company']
                 }
             )
             if 'Item' in response:

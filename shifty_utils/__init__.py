@@ -2,16 +2,16 @@
 This file is for implementing API response method and database helper methods.
 '''
 from __future__ import print_function # Python 2/3 compatibility
-import boto3
 import json
+import boto3
 from botocore.exceptions import ClientError
 
-dynamo = boto3.client('dynamodb')
+dynamo = boto3.resource('dynamodb')
 
 def respond(err, res=None):
     return {
-        'statusCode': '400' if err else '200',
-        'body': err['message'] if err else res,
+        'statusCode': 400 if err else 200,
+        'body': json.dumps(err) if err else json.dumps(res),
         'headers': {
             'Content-Type': 'application/json',
         },
@@ -19,11 +19,11 @@ def respond(err, res=None):
 
 def get_user(user):
     try:
-        response = dynamo.get_item(
-            TableName=user['company'] + '_users',
+        table = dynamo.Table(user['company'] + '_users')
+        response = table.get_item(
             Key={
                 'userId': user['userId'],
-                'position': user['posittion']
+                'position': user['position']
             }
         )
     except ClientError as e:
@@ -34,9 +34,10 @@ def get_user(user):
 
 def create(item, table):
     try:
-        response = dynamo.put_item(
-            TableName=item['company'] + '_' + table,
-            Item=item
+        table = dynamo.Table(item['company'] + '_users')
+        response = table.put_item(
+            Item=item,
+            ReturnValues='ALL_OLD'
         )
     except ClientError as e:
         print(e.response['Error']['Message'])
@@ -46,8 +47,8 @@ def create(item, table):
 
 def update_shift(shift):
     try:
-        response = dynamo.update_item(
-            TableName=shift['company'] + '_shifts',
+        table = dynamo.Table(shift['company'] + '_shifts')
+        response = table.update_item(
             Key={
                 'id': shift['id'],
                 'role': shift['role']
@@ -62,12 +63,13 @@ def update_shift(shift):
 
 def delete_shift(shift):
     try:
-        response = dynamo.delete_item(
-            TableName=shift['company'] + '_shifts',
+        table = dynamo.Table(shift['company'] + '_shifts')
+        response = table.delete_item(
             Key={
                 'id': shift['id'],
                 'role': shift['role']
-            }
+            },
+            ReturnValues='ALL_OLD'
         )
     except ClientError as e:
         print(e.response['Error']['Message'])
@@ -77,8 +79,8 @@ def delete_shift(shift):
 
 def get_shifts_by_day(company, day):
     try:
-        response = dynamo.scan(
-            TableName=company + '_shifts',
+        table = dynamo.Table(company + '_shifts')
+        response = table.scan(
             FilterExpression="day = :val",
             ExpressionAttributeValue={
                 ":val": day
@@ -93,8 +95,8 @@ def get_shifts_by_day(company, day):
 
 def get_all_shifts(company):
     try:
-        response = dynamo.scan(
-            TableName=company + '_shifts',
+        table = dynamo.Table(company + '_shifts')
+        response = table.scan(
             ConsistentRead=True
         )
     except ClientError as e:
@@ -105,8 +107,8 @@ def get_all_shifts(company):
 
 def get_all_trades(company):
     try:
-        response = dynamo.scan(
-            TableName=company + '_shifts',
+        table = dynamo.Table(company + '_shifts')
+        response = table.scan(
             FilterExpression="tradeable = :val",
             ExpressionAttributeValue={
                 ":val": True
@@ -121,7 +123,8 @@ def get_all_trades(company):
 
 def get_trades_by_day(company, day):
     try:
-        response = dynamo.scan(
+        table = dynamo.Table(company + '_shifts')
+        response = table.scan(
             TableName=company + '_shifts',
             FilterExpression="day = :day, tradeable = :t",
             ExpressionAttributeValue={

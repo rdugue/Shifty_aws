@@ -20,7 +20,8 @@ def lambda_handler(event, context):
         if pbkdf2_sha256.verify(payload['password'], user['password']):
             jwt_payload = {
                 'userId': user['userId'],
-                'position': user['position']
+                'position': user['position'],
+                'company': user['company']
             }
             jwt_token = jwt.encode(jwt_payload, JWT_SECRET, JWT_ALGORITHM)
             return respond(None, {
