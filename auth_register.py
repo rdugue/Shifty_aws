@@ -80,23 +80,24 @@ def create_tables(company):
 def lambda_handler(event, context):
     print("Received registration attempt: " + json.dumps(event, indent=2))
 
-    payload = event['body']
-    payload['password'] = pbkdf2_sha256.hash(payload['password'])
-    table = create_tables(payload['company'])
-    table.meta.client.get_waiter('table_exists').wait(TableName=payload['company'] + '_users')
+    payload = json.loads(event['body'])
+    user = payload
+    user['password'] = pbkdf2_sha256.hash(user['password'])
+    table = create_tables(user['company'])
+    table.meta.client.get_waiter('table_exists').wait(TableName=user['company'] + '_users')
 
-    response = create(payload, 'users')
+    response = create(user, 'users')
     if response['ResponseMetadata']['HTTPStatusCode'] == 200:
         jwt_payload = {
-            'userId': payload['userId'],
-            'position': payload['position'],
-            'company': payload['company']
+            'userId': user['userId'],
+            'position': user['position'],
+            'company': user['company']
         }
         jwt_token = jwt.encode(jwt_payload, JWT_SECRET, JWT_ALGORITHM)
         print("Registration succeeded: " + json.dumps(response, indent=2))
         return respond(None, {
             'token': jwt_token.decode(),
-            'data': payload
+            'data': user
             })
     else:
         print("Registration failed: " + json.dumps(response, indent=2))
