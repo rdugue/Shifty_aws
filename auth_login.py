@@ -12,7 +12,7 @@ JWT_ALGORITHM = 'HS256'
 def lambda_handler(event, context):
     print("Received login attempt: " + json.dumps(event, indent=2))
 
-    payload = event['body']
+    payload = json.loads(event['body'])
 
     response = get_user(payload)
     if 'Item' in response:
