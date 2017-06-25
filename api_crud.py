@@ -1,16 +1,17 @@
 from __future__ import print_function
 import json
-from shifty_utils import delete_shift, update_shift
-from shifty_utils import get_all_shifts, get_shifts_by_day, respond
+from shifty_utils import delete_shift, update_shift, get_all_shifts, get_shifts_by_day
+from shifty_utils import get_all_trades, get_trades_by_day, respond
 
 def lambda_handler(event, context):
     print("Received api request: " + json.dumps(event, indent=2))
 
+    path = json.loads(event['path'])
     operations = {
         'DELETE': delete_shift,
         'PUT': update_shift,
-        'GET': get_all_shifts,
-        'GET_DAY': get_shifts_by_day
+        'GET': get_all_shifts if path == '/api/shifts' else get_all_trades,
+        'GET_DAY': get_shifts_by_day if path == '/api/shifts' else get_trades_by_day
     }
     payload = json.loads(event['body'])
     operation = json.loads(event['httpMethod'])

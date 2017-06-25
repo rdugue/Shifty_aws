@@ -1,0 +1,129 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Shifty serverless back-end logic.
+Resources:
+  AuthLoginLogic:
+    Properties:
+      CodeUri: s3://shifty-back-end/back_end1.zip
+      Description: Login logic for Shifty application.
+      Events:
+        Login:
+          Properties:
+            Method: post
+            Path: /login
+          Type: Api
+      Handler: auth_login.lambda_handler
+      MemorySize: 512
+      Policies:
+      - Statement:
+        - Action:
+          - dynamodb:GetItem
+          Effect: Allow
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:dynamodb:'
+              - Ref: AWS::Region
+              - ':'
+              - Ref: AWS::AccountId
+              - :table/*
+        Version: '2012-10-17'
+      Runtime: python3.6
+      Timeout: 10
+    Type: AWS::Serverless::Function
+  AuthRegistrationLogic:
+    Properties:
+      CodeUri: s3://shifty-back-end/back_end1.zip
+      Description: Registration logic for Shifty application.
+      Events:
+        Register:
+          Properties:
+            Method: post
+            Path: /register/company
+          Type: Api
+      Handler: auth_register.lambda_handler
+      MemorySize: 512
+      Policies:
+      - Statement:
+        - Action:
+          - dynamodb:PutItem
+          - dynamodb:CreateTable
+          - dynamodb:DescribeTable
+          Effect: Allow
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:dynamodb:'
+              - Ref: AWS::Region
+              - ':'
+              - Ref: AWS::AccountId
+              - :table/*
+        Version: '2012-10-17'
+      Runtime: python3.6
+      Timeout: 20
+    Type: AWS::Serverless::Function
+  ShiftCRUDLogic:
+    Properties:
+      CodeUri: s3://shifty-back-end/back_end1.zip
+      Description: CRUD logic for Shifty apps.
+      Events:
+        Shift:
+          Properties:
+            Method: ANY
+            Path: /api/shifts
+          Type: Api
+        Trade:
+          Properties:
+            Method: ANY
+            Path: /api/trades
+          Type: Api
+      Handler: api_crud.lambda_handler
+      MemorySize: 512
+      Policies:
+      - Statement:
+        - Action:
+            - 'dynamodb:DeleteItem'
+            - 'dynamodb:GetItem'
+            - 'dynamodb:PutItem'
+            - 'dynamodb:Scan'
+            - 'dynamodb:UpdateItem'
+          Effect: Allow
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:dynamodb:'
+              - Ref: AWS::Region
+              - ':'
+              - Ref: AWS::AccountId
+              - :table/*
+        Version: '2012-10-17'
+      Runtime: python3.6
+      Timeout: 10
+    Type: AWS::Serverless::Function
+  CustomAuthLogic:
+    Properties:
+      CodeUri: s3://shifty-back-end/back_end1.zip
+      Description: Custom authorizer for Shifty API, implemented in Python 3.6.
+      Handler: authorizer.lambda_handler
+      MemorySize: 256
+      Policies:
+      - Statement:
+        - Action:
+          - dynamodb:DeleteItem
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:Scan
+          - dynamodb:UpdateItem
+          Effect: Allow
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:dynamodb:'
+              - Ref: AWS::Region
+              - ':'
+              - Ref: AWS::AccountId
+              - :table/*
+        Version: '2012-10-17'
+      Runtime: python3.6
+      Timeout: 5
+    Type: AWS::Serverless::Function
+Transform: AWS::Serverless-2016-10-31
