@@ -59,7 +59,7 @@ Resources:
               - :table/*
         Version: '2012-10-17'
       Runtime: python3.6
-      Timeout: 20
+      Timeout: 60
     Type: AWS::Serverless::Function
   ShiftCRUDLogic:
     Properties:

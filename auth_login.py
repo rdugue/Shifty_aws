@@ -1,4 +1,5 @@
 from __future__ import print_function
+from datetime import datetime, timedelta
 import json
 import jwt
 from passlib.hash import pbkdf2_sha256
@@ -7,7 +8,7 @@ from shifty_utils import respond, get_user
 print('Loading function')
 JWT_SECRET = 'secret'
 JWT_ALGORITHM = 'HS256'
-
+JWT_EXP_DELTA_SECONDS = 60*60*24*2
 
 def lambda_handler(event, context):
     print("Received login attempt: " + json.dumps(event, indent=2))
@@ -21,7 +22,8 @@ def lambda_handler(event, context):
             jwt_payload = {
                 'userId': user['userId'],
                 'position': user['position'],
-                'company': user['company']
+                'company': user['company'],
+                'exp': datetime.utcnow() + timedelta(seconds=JWT_EXP_DELTA_SECONDS)
             }
             jwt_token = jwt.encode(jwt_payload, JWT_SECRET, JWT_ALGORITHM)
             return respond(None, {
