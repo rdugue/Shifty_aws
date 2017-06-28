@@ -9,23 +9,20 @@ JWT_SECRET = 'secret'
 JWT_ALGORITHM = 'HS256'
 
 def lambda_handler(event, context):
-    headers = event['headers']
-    print("Client token: " + headers['Authorization'])
+    print("Client token: " + event['authorizationToken'])
     print("Method ARN: " + event['methodArn'])
 
-    jwt_token = headers['Authorization']
+    jwt_token = event['authorizationToken']
     if jwt_token:
         try:
             jwt_payload = jwt.decode(jwt_token, JWT_SECRET,
                                      algorithms=[JWT_ALGORITHM])
-        except jwt.DecodeError as e:
-            print(e.message)
+        except (jwt.DecodeError, jwt.ExpiredSignatureError):
             raise Exception('Unauthorized')
         else:
             response = get_user(
                 {
                     'userId': jwt_payload['userId'],
-                    'position': jwt_payload['position'],
                     'company': jwt_payload['company']
                 }
             )

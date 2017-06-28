@@ -19,51 +19,67 @@ def respond(err, res=None):
 
 def get_user(user):
     try:
-        table = dynamo.Table(user['company'] + '_users')
+        table = dynamo.Table('users')
         response = table.get_item(
             Key={
-                'userId': user['userId'],
-                'position': user['position']
+                'userId': user['userId']
             }
         )
     except ClientError as e:
         print(e.response['Error']['Message'])
-        return {'message': e.response['Error']['Message']}
+        return {'error': e.response['Error']['Message']}
     else:
         return response
 
 def create(item, table):
     try:
-        table = dynamo.Table(item['company'] + '_users')
+        table = dynamo.Table('users')
         response = table.put_item(
             Item=item,
             ReturnValues='ALL_OLD'
         )
     except ClientError as e:
         print(e.response['Error']['Message'])
-        return {'message': e.response['Error']['Message']}
+        return {'error': e.response['Error']['Message']}
     else:
         return response
 
 def update_shift(shift):
     try:
-        table = dynamo.Table(shift['company'] + '_shifts')
+        table = dynamo.Table('shifts')
         response = table.update_item(
             Key={
                 'id': shift['id'],
                 'role': shift['role']
             },
+            UpdateExpression='SET #c = :c, #e = :e, #s = :s, #et = :et, #d = :d, #t = :t',
+            ExpressionAttributeNames={
+                '#c': 'company',
+                '#e': 'employee',
+                '#s': 'start',
+                '#et': 'end',
+                '#d': 'day',
+                '#t': 'traeable'
+            },
+            ExpressionAttributeValues={
+                ':c': shift['company'],
+                ':e': shift['employee'],
+                ':s': shift['start'],
+                ':et': shift['end'],
+                ':d': shift['day'],
+                ':t': shift['tradeable']
+            },
             ReturnValues="ALL_NEW"
         )
     except ClientError as e:
         print(e.response['Error']['Message'])
-        return {'message': e.response['Error']['Message']}
+        return {'error': e.response['Error']['Message']}
     else:
         return response
 
 def delete_shift(shift):
     try:
-        table = dynamo.Table(shift['company'] + '_shifts')
+        table = dynamo.Table('shifts')
         response = table.delete_item(
             Key={
                 'id': shift['id'],
@@ -73,68 +89,76 @@ def delete_shift(shift):
         )
     except ClientError as e:
         print(e.response['Error']['Message'])
-        return {'message': e.response['Error']['Message']}
+        return {'error': e.response['Error']['Message']}
     else:
         return response
 
 def get_shifts_by_day(company, day):
     try:
-        table = dynamo.Table(company + '_shifts')
+        table = dynamo.Table('shifts')
         response = table.scan(
-            FilterExpression="day = :val",
-            ExpressionAttributeValue={
-                ":val": day
+            FilterExpression="#d = :d AND company = :c",
+            ExpressionAttributeNames={
+                "#d": 'day'
+            },
+            ExpressionAttributeValues={
+                ":d": day,
+                ":c": company
             },
             ConsistentRead=True
         )
     except ClientError as e:
         print(e.response['Error']['Message'])
-        return {'message': e.response['Error']['Message']}
+        return {'error': e.response['Error']['Message']}
     else:
         return response
 
 def get_all_shifts(company):
     try:
-        table = dynamo.Table(company + '_shifts')
+        table = dynamo.Table('shifts')
         response = table.scan(
             ConsistentRead=True
         )
     except ClientError as e:
         print(e.response['Error']['Message'])
-        return {'message': e.response['Error']['Message']}
+        return {'error': e.response['Error']['Message']}
     else:
         return response
 
 def get_all_trades(company):
     try:
-        table = dynamo.Table(company + '_shifts')
+        table = dynamo.Table('shifts')
         response = table.scan(
-            FilterExpression="tradeable = :val",
-            ExpressionAttributeValue={
-                ":val": True
+            FilterExpression="tradeable = :t AND company = :c",
+            ExpressionAttributeValues={
+                ":t": True,
+                ":c": company
             },
             ConsistentRead=True
         )
     except ClientError as e:
         print(e.response['Error']['Message'])
-        return {'message': e.response['Error']['Message']}
+        return {'error': e.response['Error']['Message']}
     else:
         return response
 
 def get_trades_by_day(company, day):
     try:
-        table = dynamo.Table(company + '_shifts')
+        table = dynamo.Table('shifts')
         response = table.scan(
-            TableName=company + '_shifts',
-            FilterExpression="day = :day, tradeable = :t",
-            ExpressionAttributeValue={
-                ":day": day,
-                ":t": True
+            FilterExpression="#d = :d, tradeable = :t AND company = :c",
+            ExpressionAttributeNames={
+                "#d": 'day'
+            },
+            ExpressionAttributeValues={
+                ":d": day,
+                ":t": True,
+                ":c": company
             },
             ConsistentRead=True
         )
     except ClientError as e:
         print(e.response['Error']['Message'])
-        return {'message': e.response['Error']['Message']}
+        return {'error': e.response['Error']['Message']}
     else:
         return response

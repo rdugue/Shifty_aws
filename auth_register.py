@@ -14,10 +14,10 @@ JWT_SECRET = 'secret'
 JWT_ALGORITHM = 'HS256'
 JWT_EXP_DELTA_SECONDS = 60*60*24*2
 
-def create_tables(company):
+def create_tables():
     try:
         dynamo.create_table(
-            TableName=company + '_shifts',
+            TableName='shifts',
             KeySchema=[
                 {
                     'AttributeName': 'id',
@@ -48,24 +48,16 @@ def create_tables(company):
 
     try:
         users = dynamo.create_table(
-            TableName=company + '_users',
+            TableName='users',
             KeySchema=[
                 {
                     'AttributeName': 'userId',
                     'KeyType': 'HASH'
-                },
-                {
-                    'AttributeName': 'position',
-                    'KeyType': 'RANGE'
                 }
             ],
             AttributeDefinitions=[
                 {
                     'AttributeName': 'userId',
-                    'AttributeType': 'S'
-                },
-                {
-                    'AttributeName': 'position',
                     'AttributeType': 'S'
                 }
             ],
@@ -76,7 +68,7 @@ def create_tables(company):
         )
     except ClientError as e:
         print(e.response['Error']['Message'])
-        return dynamo.Table(company + '_users')
+        return dynamo.Table('users')
     else:
         return users
 
@@ -86,8 +78,8 @@ def lambda_handler(event, context):
     payload = json.loads(event['body'])
     user = payload
     user['password'] = pbkdf2_sha256.hash(user['password'])
-    table = create_tables(user['company'])
-    table.meta.client.get_waiter('table_exists').wait(TableName=user['company'] + '_users')
+    table = create_tables()
+    table.meta.client.get_waiter('table_exists').wait(TableName='users')
 
     response = create(user, 'users')
     if response['ResponseMetadata']['HTTPStatusCode'] == 200:
