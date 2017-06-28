@@ -1,0 +1,25 @@
+{
+    "User": {
+        "userId": "ralph",
+        "company": "AbleSoft",
+        "password": "a1b2c3d4",
+        "position": "Baws",
+        "first_name": "Ralph",
+        "last_name": "Dugue",
+        "email": "rdugue@ablesoft.net"
+    },
+    "shift": {
+        "id": "123456",
+        "role": "receptions",
+        "company": "AbleSoft",
+        "employee": "ralph",
+        "start": "10:00am",
+        "end": "6:30pm",
+        "day": "Tuesday",
+        "tradeable": false
+    },
+    "login": {
+        "userId": "ralph",
+        "password": "a1b2c3d4"
+    }
+}

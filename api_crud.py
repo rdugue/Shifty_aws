@@ -6,7 +6,7 @@ from shifty_utils import get_all_trades, get_trades_by_day, respond
 def lambda_handler(event, context):
     print("Received api request: " + json.dumps(event, indent=2))
 
-    path = json.loads(event['path'])
+    path = event['path']
     operations = {
         'DELETE': delete_shift,
         'PUT': update_shift,
@@ -14,27 +14,27 @@ def lambda_handler(event, context):
         'GET_DAY': get_shifts_by_day if path == '/api/shifts' else get_trades_by_day
     }
     payload = json.loads(event['body'])
-    operation = json.loads(event['httpMethod'])
+    operation = event['httpMethod']
 
     if operation in operations:
         if operation == 'GET':
-            params = json.loads(event['queryStringParameters'])
+            params = event['queryStringParameters']
             if 'day' in params:
                 response = operations['GET_DAY'](params['company'], params['day'])
             else:
                 response = operations[operation](params['company'])
-            if 'Items' in response:
-                return respond(None, {'data': response['Items']})
-            else:
+            if 'error' in response:
                 return respond(response)
+            else:
+                return respond(None, {'data': response['Items']})
         else:
             if payload:
                 response = operations[operation](payload)
-                if 'Item' in response:
-                    return respond(None, {'data': response['Item']})
-                else:
+                if 'error' in response:
                     return respond(response)
+                else:
+                    return respond(None, {'data': response['Attributes']})
             else:
-                return respond({'message': 'No request body'})
+                return respond({'error': 'No request body'})
     else:
         return respond(ValueError('Unsupported method "{}"'.format(operation)))
