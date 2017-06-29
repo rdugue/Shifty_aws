@@ -13,21 +13,27 @@ def lambda_handler(event, context):
         'GET': get_all_shifts if path == '/api/shifts' else get_all_trades,
         'GET_DAY': get_shifts_by_day if path == '/api/shifts' else get_trades_by_day
     }
-    payload = json.loads(event['body'])
     operation = event['httpMethod']
 
     if operation in operations:
         if operation == 'GET':
-            params = event['queryStringParameters']
-            if 'day' in params:
-                response = operations['GET_DAY'](params['company'], params['day'])
+            if event['queryStringParameters']:
+                params = event['queryStringParameters']
             else:
-                response = operations[operation](params['company'])
-            if 'error' in response:
-                return respond(response)
+                params = {}
+            if 'company' in params:
+                if 'day' in params:
+                    response = operations['GET_DAY'](params['company'], params['day'])
+                else:
+                    response = operations[operation](params['company'])
+                if 'error' in response:
+                    return respond(response)
+                else:
+                    return respond(None, {'data': response['Items']})
             else:
-                return respond(None, {'data': response['Items']})
+                return respond({'error': 'No company specified'})
         else:
+            payload = json.loads(event['body'])
             if payload:
                 response = operations[operation](payload)
                 if 'error' in response:
