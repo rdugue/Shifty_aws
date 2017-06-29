@@ -12,9 +12,10 @@ JWT_EXP_DELTA_SECONDS = 60*60*24*2
 
 def lambda_handler(event, context):
     print("Received login attempt: " + json.dumps(event, indent=2))
-
-    payload = json.loads(event['body'])
-
+    if event['body']:
+        payload = json.loads(event['body'])
+    else:
+        return respond({'error': 'no POST body'})
     response = get_user(payload)
     if 'Item' in response:
         user = response['Item']
@@ -32,6 +33,6 @@ def lambda_handler(event, context):
                 })
         else:
             print("Credentials could not be verified:" + json.dumps(user, indent=2))
-            return respond({'message': 'Invalid credentials'})
+            return respond({'error': 'Invalid credentials'})
     else:
         return respond(response)
