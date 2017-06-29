@@ -43,6 +43,8 @@ def lambda_handler(event, context):
                 authResponse = policy.build()
 
                 return authResponse
+    else:
+        raise Exception('Unauthorized: no token')
 
 class HttpVerb:
     GET = 'GET'
