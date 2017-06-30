@@ -74,15 +74,15 @@ def create_tables():
 
 def lambda_handler(event, context):
     print("Received registration attempt: " + json.dumps(event, indent=2))
-
-    payload = json.loads(event['body'])
-    user = payload
+    if event['body']:
+        user = json.loads(event['body'])
+    else:
+        return respond({'error': 'no POST body'})
     user['password'] = pbkdf2_sha256.hash(user['password'])
     table = create_tables()
     table.meta.client.get_waiter('table_exists').wait(TableName='users')
-
     response = create(user, 'users')
-    if response['ResponseMetadata']['HTTPStatusCode'] == 200:
+    if 'error' not in response:
         jwt_payload = {
             'userId': user['userId'],
             'position': user['position'],
