@@ -3,7 +3,7 @@ Description: Shifty serverless back-end logic.
 Resources:
   AuthLoginLogic:
     Properties:
-      CodeUri: s3://shifty-back-end/back_end1.zip
+      CodeUri: s3://shifty-back-end/back_end.zip
       Description: Login logic for Shifty application.
       Events:
         Login:
@@ -32,7 +32,7 @@ Resources:
     Type: AWS::Serverless::Function
   AuthRegistrationLogic:
     Properties:
-      CodeUri: s3://shifty-back-end/back_end1.zip
+      CodeUri: s3://shifty-back-end/back_end.zip
       Description: Registration logic for Shifty application.
       Events:
         Register:
@@ -63,7 +63,7 @@ Resources:
     Type: AWS::Serverless::Function
   ShiftCRUDLogic:
     Properties:
-      CodeUri: s3://shifty-back-end/back_end1.zip
+      CodeUri: s3://shifty-back-end/back_end.zip
       Description: CRUD logic for Shifty apps.
       Events:
         Shift:
@@ -101,7 +101,7 @@ Resources:
     Type: AWS::Serverless::Function
   CustomAuthLogic:
     Properties:
-      CodeUri: s3://shifty-back-end/back_end1.zip
+      CodeUri: s3://shifty-back-end/back_end.zip
       Description: Custom authorizer for Shifty API, implemented in Python 3.6.
       Handler: authorizer.lambda_handler
       MemorySize: 256

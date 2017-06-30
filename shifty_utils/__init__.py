@@ -59,7 +59,7 @@ def update_shift(shift):
                 '#s': 'start',
                 '#et': 'end',
                 '#d': 'day',
-                '#t': 'traeable'
+                '#t': 'tradeable'
             },
             ExpressionAttributeValues={
                 ':c': shift['company'],
