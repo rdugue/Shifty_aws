@@ -13,8 +13,8 @@ def respond(err, res=None):
         'statusCode': 400 if err else 200,
         'body': json.dumps(err) if err else json.dumps(res),
         'headers': {
-            'Access-Control-Allow-Headers': 'Content-Type'
-            'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, DELETE'
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, DELETE',
             'Access-Control-Allow-Origin': '*',
             'Content-Type': 'application/json'
         },
